@@ -1,5 +1,3 @@
 # BottomUpParsers
 
-Python Menu Drive Program 
-
-Implements SLR, CLR and LALR Parsers
+Python 3 Program - Implements SLR, CLR and LALR Parsers
