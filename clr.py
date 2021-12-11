@@ -293,7 +293,7 @@ def display():
     scrollbar2 = Scrollbar(root, bg="green")
     scrollbar2.pack( side = RIGHT, fill = Y )
 
-    mylist = Listbox(root,yscrollcommand=scrollbar1.set,xscrollcommand=scrollbar2.set,background='#D9D8D7',font=("Calibri", 15,"bold"),height=100,width=50,highlightthickness=5)
+    mylist = Listbox(root,yscrollcommand=scrollbar1.set,xscrollcommand=scrollbar2.set,background='#D9D8D7',font=("Calibri", 15,"bold"),height=100,width=0,highlightthickness=5)
 
     for i in Data:
         mylist.insert(END,'  '+i)
