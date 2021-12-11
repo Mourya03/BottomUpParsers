@@ -1,14 +1,13 @@
 from functions import *
 from tkinter import *
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
 
 root = tk.Tk()
 root.geometry("500x500")
 root.title("Bottom-Up Parsers")
 root.config(bg='#D9D8D7')
 style = ttk.Style(root)
-
 frame = tk.Frame(root, padx=10,pady=10,bg='#D9D8D7')
 frame.pack()
 

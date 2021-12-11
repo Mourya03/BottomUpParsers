@@ -1,5 +1,9 @@
 from re import *
 from collections import OrderedDict
+from functions import *
+from tkinter import *
+import tkinter as tk
+import tkinter.ttk as ttk
 
 t_list=OrderedDict()
 nt_list=OrderedDict()
@@ -113,41 +117,38 @@ def get_follow(symbol):
 
 # ------------------------------------------------------------------    
 
-def main(pl=None):
+def main(MainInput):
 
-    print('''Enter the grammar productions (enter 'end' or return to stop)
-#(Format: "A->Y1Y2..Yn" {Yi - single char} OR "A->" {epsilon})''')
-
+    print("start")
     global production_list, t_list, nt_list
     ctr=1
 
     #t_regex, nt_regex=r'[a-z\W]', r'[A-Z]'
-
-    if pl==None:
-
-        while True:
+    for Input in MainInput:
 
             #production_list.append(input('{})\t'.format(ctr)))
             
-            production_list.append(input().replace(' ', ''))
+        production_list.append(Input.replace(' ', ''))
 
-            if production_list[-1].lower() in ['end', '']: 
-                del production_list[-1]
-                break
+        if production_list[-1].lower() in ['end', '']: 
+            del production_list[-1]
+            break
 
-            head, body=production_list[ctr-1].split('->')
+        head, body=production_list[ctr-1].split('->')
 
-            if head not in nt_list.keys():
-                nt_list[head]=NonTerminal(head)
+        if head not in nt_list.keys():
+            nt_list[head]=NonTerminal(head)
 
             #for all terminals in the body of the production
-            for i in body:
-                if not 65<=ord(i)<=90:
-                    if i not in t_list.keys(): t_list[i]=Terminal(i)
+        for i in body:
+            if not 65<=ord(i)<=90:
+                if i not in t_list.keys(): t_list[i]=Terminal(i)
             #for all non-terminals in the body of the production
-                elif  i not in nt_list.keys(): nt_list[i]=NonTerminal(i)
+            elif  i not in nt_list.keys(): nt_list[i]=NonTerminal(i)
                 
-            ctr+=1
+        ctr+=1
+    
+    print("end")
 
     '''if pl!=None:
         for i, prod in enumerate(pl):
@@ -165,10 +166,5 @@ def main(pl=None):
             for i in finditer(nt_regex, body):
                 s=i.group()
                 if s not in nt_list.keys(): nt_list[s]=NonTerminal(s)'''
-                
-    return pl
-# ------------------------------------------------------------------
 
-if __name__=='__main__':
-    
-    main()
+# ------------------------------------------------------------------

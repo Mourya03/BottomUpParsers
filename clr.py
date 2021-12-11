@@ -1,10 +1,14 @@
 from collections import deque
 from collections import OrderedDict
-from pprint import pprint
+from functions import *
+from tkinter import *
+import tkinter as tk
+from tkinter import ttk
+from firstfollow import *
 import firstfollow
 from firstfollow import production_list, nt_list as ntl, t_list as tl
 nt_list, t_list=[], []
-
+Data = []
 class State:
 
     _id=0
@@ -188,48 +192,52 @@ def augment_grammar():
             production_list.insert(0, chr(i)+'->'+start_prod.split('->')[0]) 
             return
 
-def main():
+def main(MainInput):
 
     global production_list, ntl, nt_list, tl, t_list    
 
-    firstfollow.main()
-
-    print("\tFIRST AND FOLLOW OF NON-TERMINALS")
+    firstfollow.main(MainInput)
+    print(production_list)
+    Data.append("FIRST AND FOLLOW OF NON-TERMINALS")
+    Data.append(" ")
     for nt in ntl:
         firstfollow.compute_first(nt)
         firstfollow.compute_follow(nt)
-        print(nt)
-        print("\tFirst:\t", firstfollow.get_first(nt))
-        print("\tFollow:\t", firstfollow.get_follow(nt), "\n")  
+        Data.append("{} :".format(nt))
+        Data.append("FIRST  :     "+str(firstfollow.get_first(nt)))
+        Data.append("FOLLOW :     "+str(firstfollow.get_follow(nt))) 
+        Data.append(" ") 
     
 
     augment_grammar()
     nt_list=list(ntl.keys())
     t_list=list(tl.keys()) + ['$']
 
-    print(nt_list)
-    print(t_list)
+    #Data.append(nt_list)
+    #Data.append(t_list)
 
     j=calc_states()
 
     ctr=0
+    Data.append("ITEM SETS :")
     for s in j:
-        print("Item{}:".format(ctr))
+        Data.append(" ")
+        Data.append("Item{}:".format(ctr))
         for i in s:
-            print("\t", i)
+            Data.append("       "+str(i))
         ctr+=1
 
     table=make_table(j)
-    print('_____________________________________________________________________')
-    print("\n\tCLR(1) TABLE\n")
+    Data.append(' ')
+    Data.append("CLR(1) TABLE :")
     sym_list = nt_list + t_list
     sr, rr=0, 0
-    print('_____________________________________________________________________')
-    print('\t|  ','\t|  '.join(sym_list),'\t\t|')
-    print('_____________________________________________________________________')
+    Data.append('_____________________________________________________________________')
+    Data.append('     |     '+'     |     '.join(sym_list)+'        |')
+    Data.append('_____________________________________________________________________')
     for i, j in table.items():
             
-        print(i, "\t|  ", '\t|  '.join(list(j.get(sym,' ') if type(j.get(sym))in (str , None) else next(iter(j.get(sym,' ')))  for sym in sym_list)),'\t\t|')
+        Data.append(str(i)+'     |     '+'     |     '.join(list(j.get(sym,' ') if type(j.get(sym))in (str , None) else next(iter(j.get(sym,' ')))  for sym in sym_list))+'         |')
         s, r=0, 0
 
         for p in j.values():
@@ -241,49 +249,125 @@ def main():
                 else: s+=1      
         if r>0 and s>0: sr+=1
         elif r>0: rr+=1
-    print('_____________________________________________________________________')
-    print("\n", sr, "s/r conflicts |", rr, "r/r conflicts")
-    print('_____________________________________________________________________')
-    print("Enter the string to be parsed")
-    Input=input()+'$'
-    try:
-        stack=['0']
-        a=list(table.items())
-        '''print(a[int(stack[-1])][1][Input[0]])
-        b=list(a[int(stack[-1])][1][Input[0]])
-        print(b[0][0])
-        print(a[0][1]["S"])'''
-        print("productions\t:",production_list)
-        print('stack',"\t \t\t \t",'Input')
-        print(*stack,"\t \t\t \t",*Input,sep="")
-        while(len(Input)!=0):
-            b=list(a[int(stack[-1])][1][Input[0]])
-            if(b[0][0]=="s" ):
-                #s=Input[0]+b[0][1:]
-                stack.append(Input[0])
-                stack.append(b[0][1:])
-                Input=Input[1:]
-                print(*stack,"\t \t\t \t",*Input,sep="")
-            elif(b[0][0]=="r" ):
-                s=int(b[0][1:])
-                #print(len(production_list),s)
-                l=len(production_list[s])-3
-                #print(l)
-                prod=production_list[s]
-                l*=2
-                l=len(stack)-l
-                stack=stack[:l]
-                s=a[int(stack[-1])][1][prod[0]]
-                #print(s,b)
-                stack+=list(prod[0])
-                stack.append(s)
-                print(*stack,"\t \t\t \t",*Input,sep="")
-            elif(b[0][0]=="a"):
-                print("\n\tString Accepted\n")
-                break
-    except:
-        print('\n\tString INCORRECT for given Grammar!\n')
-    return 
+    Data.append('_____________________________________________________________________')
+    Data.append(str(sr)+ " s/r conflicts | "+str(rr)+ " r/r conflicts")
+    Data.append(' ')
 
-if __name__=="__main__":
-    main()
+
+    
+    return table
+
+
+# CLR MAIN
+root = tk.Tk()
+root.geometry("600x500")
+root.title("CLR Parser")
+root.config(bg='#D9D8D7')
+paddings = {'padx': 5, 'pady': 5}
+
+style = ttk.Style()
+style.configure("TButton", font=("Calibri", 15, "bold"), borderwidth=4)
+style.configure("TLabel", font=("Calibri", 15,"bold"), borderwidth=4)
+style.configure("TEntry", font=("Calibri", 15,"bold"), borderwidth=4)
+style.map("TButton", foreground=[("active", "disabled", "green")],background=[("active", "black")])
+#style.theme_use("classic")
+
+frame = tk.Frame(root)
+frame.configure(background='#D9D8D7')
+frame.pack()
+
+MainInput = []
+Input = tk.StringVar()
+
+ttk.Label(frame, text ="Enter the Productions :",background='#D9D8D7').pack(padx=10,pady=10,anchor=W)
+InputEntry = ttk.Entry(frame,width=50,textvariable=Input)
+InputEntry.pack(ipadx=10,ipady=10,padx=10,anchor=W)
+
+table = None
+
+def display():
+
+    scrollbar1 = Scrollbar(root, bg="green")
+    scrollbar1.pack( side = RIGHT, fill = Y )
+
+    scrollbar2 = Scrollbar(root, bg="green")
+    scrollbar2.pack( side = RIGHT, fill = Y )
+
+    mylist = Listbox(root,yscrollcommand=scrollbar1.set,xscrollcommand=scrollbar2.set,background='#D9D8D7',font=("Calibri", 15,"bold"),height=100,width=50,highlightthickness=5)
+
+    for i in Data:
+        mylist.insert(END,'  '+i)
+        #ttk.Label(frame, text=i,background='#D9D8D7').pack(anchor=SW)
+
+    mylist.pack(anchor=CENTER, fill = BOTH,padx=60,pady=10,ipadx=20,ipady=20 )
+    scrollbar1.config(command=mylist.yview)
+    scrollbar2.config(command=mylist.xview)
+        
+
+def add_input():
+    MainInput.append(Input.get())
+    #ttk.Label(frame, text =Input.get()).pack()
+    InputEntry.delete(0,END)
+    print(Input.get(),MainInput)
+
+def submit_input():
+    print("entered submit")
+    MainInput.append(Input.get())
+    table = main(MainInput)
+    InputEntry.delete(0,END)
+    display()
+    #ttk.Label(frame, text ="\n",background='#D9D8D7').pack(padx=10,pady=10,anchor=W)
+    #for i in Data:
+    #    ttk.Label(frame, text=i,background='#D9D8D7').pack(side=BOTTOM)
+        #rc+=1
+
+ttk.Button(frame, text = "Add Production", command = add_input).pack(side=LEFT,padx=10,pady=10)
+ttk.Button(frame, text = "Submit Productions", command = submit_input).pack(side=LEFT,padx=10,pady=10)
+ttk.Button(frame, text = "Exit", command = root.destroy).pack(side=LEFT,padx=10,pady=10)
+ttk.Label(frame, text='',background='#D9D8D7').pack(anchor=S,fill=X)
+
+
+root.mainloop()
+
+
+'''
+Data.append("Enter the string to be parsed")
+Input=input()+'$'
+try:
+    stack=['0']
+    a=list(table.items())
+    Data.append("productions    : "+str(production_list))
+    Data.append('stack'+"                    "+'Input')
+    Data.append(str(*stack)+"                  "+str(*Input))
+    while(len(Input)!=0):
+        b=list(a[int(stack[-1])][1][Input[0]])
+        if(b[0][0]=="s" ):
+                #s=Input[0]+b[0][1:]
+            stack.append(Input[0])
+            stack.append(b[0][1:])
+            Input=Input[1:]
+            Data.append(str(*stack)+"                  "+str(*Input))
+        elif(b[0][0]=="r" ):
+            s=int(b[0][1:])
+                #print(len(production_list),s)
+            l=len(production_list[s])-3
+                #print(l)
+            prod=production_list[s]
+            l*=2
+            l=len(stack)-l
+            stack=stack[:l]
+            s=a[int(stack[-1])][1][prod[0]]
+                #print(s,b)
+            stack+=list(prod[0])
+            stack.append(s)
+            Data.append(str(*stack)+"                  "+str(*Input))
+        elif(b[0][0]=="a"):
+            Data.append("    String Accepted!")
+            break
+except:
+    Data.append('    String INCORRECT for given Grammar!')
+'''
+
+
+
+

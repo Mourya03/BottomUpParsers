@@ -35,6 +35,7 @@ def eval():
 submt = ttk.Button(frm,command=eval)
 submt.pack()
 
+data = [1,2,3,4,"hello",6]
 
 root.mainloop()
 
